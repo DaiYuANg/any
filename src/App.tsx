@@ -1,8 +1,10 @@
 import "./App.css";
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useState} from "react";
 import {Button} from "@/components/ui/button.tsx";
 import {Menu} from "lucide-react";
 import {TreeNode, type TreeNodeData} from "@/components/TreeNode";
+import {useResizableSidebar} from "@/hook";
+import {MainPanel} from "@/components/MainPanel";
 
 const treeData: TreeNodeData[] = [
   {
@@ -23,50 +25,22 @@ const treeData: TreeNodeData[] = [
   },
 ]
 
-function App() {
-  const [sidebarWidth, setSidebarWidth] = useState(240)
+const App = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
-  const isResizing = useRef(false)
-
-  const MIN_WIDTH = 160
-  const MAX_WIDTH = 480
+  const {width: sidebarWidth, handleMouseDown} = useResizableSidebar({
+    disabled: isMobile,
+  });
 
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
-    checkMobile()
-    window.addEventListener("resize", checkMobile)
-    return () => window.removeEventListener("resize", checkMobile)
-  }, [])
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (isMobile) return
-    isResizing.current = true
-    const startX = e.clientX
-    const startWidth = sidebarWidth
-
-    const onMouseMove = (moveEvent: MouseEvent) => {
-      if (!isResizing.current) return
-      const delta = moveEvent.clientX - startX
-      const newWidth = Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, startWidth + delta))
-      setSidebarWidth(newWidth)
-    }
-
-    const onMouseUp = () => {
-      isResizing.current = false
-      window.removeEventListener("mousemove", onMouseMove)
-      window.removeEventListener("mouseup", onMouseUp)
-    }
-
-    window.addEventListener("mousemove", onMouseMove)
-    window.addEventListener("mouseup", onMouseUp)
-  }
-
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   return (
-    <main className="container flex h-screen w-screen overflow-hidden">
+    <main className="flex h-screen w-screen overflow-hidden">
       {/* ☰ 小屏打开按钮 */}
       {isMobile && !isSidebarOpen && (
         <Button
@@ -115,12 +89,9 @@ function App() {
         />
       )}
 
-      {/* MainPanel */}
-      <main className="flex-grow overflow-auto p-4">
-        <h1 className="text-2xl font-bold mb-4">content</h1>
-      </main>
+      <MainPanel />
     </main>
   );
-}
+};
 
 export default App;
