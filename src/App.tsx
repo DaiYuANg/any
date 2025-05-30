@@ -2,28 +2,11 @@ import "./App.css";
 import {useEffect, useState} from "react";
 import {Button} from "@/components/ui/button.tsx";
 import {Menu} from "lucide-react";
-import {TreeNode, type TreeNodeData} from "@/components/TreeNode";
 import {useResizableSidebar} from "@/hook";
 import {MainPanel} from "@/components/MainPanel";
-
-const treeData: TreeNodeData[] = [
-  {
-    id: "project-a",
-    label: "项目 A",
-    children: [
-      {id: "a1", label: "节点 A1"},
-      {id: "a2", label: "节点 A2"},
-    ],
-  },
-  {
-    id: "project-b",
-    label: "项目 B",
-    children: [
-      {id: "b1", label: "节点 B1"},
-      {id: "b2", label: "节点 B2"},
-    ],
-  },
-]
+import {GlobalCommand} from "@/components/command";
+import {useHotkeys} from "react-hotkeys-hook";
+import {useCommandPaletteStore} from "@/store/CommandPaletteStore.ts";
 
 const App = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
@@ -31,6 +14,8 @@ const App = () => {
   const {width: sidebarWidth, handleMouseDown} = useResizableSidebar({
     disabled: isMobile,
   });
+  const {setOpen} = useCommandPaletteStore()
+  useHotkeys("mod+k", () => setOpen(true));
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -74,9 +59,9 @@ const App = () => {
             </Button>
           )}
           <div className="space-y-1">
-            {treeData.map((node) => (
-              <TreeNode key={node.id} node={node}/>
-            ))}
+            {/*{treeData.map((node) => (*/}
+            {/*  <TreeNode key={node.id} node={node}/>*/}
+            {/*))}*/}
           </div>
         </aside>
       )}
@@ -85,11 +70,13 @@ const App = () => {
       {!isMobile && (
         <div
           onMouseDown={handleMouseDown}
-          className="w-1 cursor-col-resize bg-border hover:bg-primary transition-colors"
+          className="w-0.5 cursor-col-resize bg-border hover:bg-primary transition-colors"
         />
       )}
 
-      <MainPanel />
+      <MainPanel/>
+
+      <GlobalCommand/>
     </main>
   );
 };

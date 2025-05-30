@@ -1,1 +1,1 @@
-export * from './UseResizableSidebar.ts'
+export * from './ResizableSidebar.ts'
