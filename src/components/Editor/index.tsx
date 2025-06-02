@@ -1,4 +1,4 @@
-import {LexicalComposer} from "@lexical/react/LexicalComposer";
+import {type InitialConfigType, LexicalComposer} from "@lexical/react/LexicalComposer";
 import {HistoryPlugin} from "@lexical/react/LexicalHistoryPlugin";
 import {RichTextPlugin} from "@lexical/react/LexicalRichTextPlugin";
 import {ContentEditable} from "@lexical/react/LexicalContentEditable";
@@ -18,8 +18,11 @@ import './editor.css'
 import {theme} from "@/components/Editor/theme.ts";
 import {ActionsPlugin, CodeHighlightPlugin} from "@/components/Editor/plugin";
 import TreeViewPlugin from "@/components/Editor/plugin/TreeViewPlugin.tsx";
+import {Placeholder} from "@/components/Editor/placeholder.tsx";
+import {ListenerPlugin} from "@/components/Editor/plugin/Listener.ts";
+import type {EditorState} from "lexical";
 
-const editorConfig = {
+const editorConfig: InitialConfigType = {
   namespace: "MyMarkdownEditor",
   theme: theme,
   onError(error: Error) {
@@ -41,16 +44,13 @@ const editorConfig = {
   ]
 };
 
-function Placeholder() {
-  return (
-    <div className="editor-placeholder">
-      Play around with the Markdown plugin...
-    </div>
-  );
-}
-
-
 const Editor = () => {
+  const handleEditorChange =
+    (state: EditorState) => {
+      console.log(state)
+      console.log(JSON.stringify(state));
+      localStorage.setItem("content", JSON.stringify(state));
+    };
   return (
     <LexicalComposer initialConfig={editorConfig}>
       <div className="editor-container">
@@ -66,9 +66,10 @@ const Editor = () => {
           <LinkPlugin/>
           <MarkdownShortcutPlugin transformers={TRANSFORMERS}/>
           <CodeHighlightPlugin/>
+          <ListenerPlugin onChange={handleEditorChange}/>
         </div>
         <ActionsPlugin/>
-        <TreeViewPlugin />
+        <TreeViewPlugin/>
       </div>
     </LexicalComposer>
   );
